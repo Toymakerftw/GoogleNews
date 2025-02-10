@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Company News Sentiment Analyzer</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        .sentiment-positive { color: green; }
+        .sentiment-negative { color: red; }
+        .sentiment-neutral { color: gray; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        .sentiment-chart { display: flex; margin-top: 20px; }
+        .sentiment-bar { height: 20px; }
+    </style>
+</head>
+<body>
+    <h1>Company News Sentiment Analyzer</h1>
+    
+    <form method="POST">
+        <input type="text" name="company" placeholder="Enter Company Name or Ticker" required>
+        <button type="submit">Analyze Sentiment</button>
+    </form>
+
+    {% if error %}
+        <p style="color: red;">{{ error }}</p>
+    {% endif %}
+
+    {% if results %}
+        <h2>Sentiment Overview for {{ company }}</h2>
+        
+        <div class="sentiment-chart">
+            <div class="sentiment-bar" style="background-color: green; width: {{ (sentiment_counts['POSITIVE'] / results|length * 100)|round(2) }}%">
+                Positive: {{ sentiment_counts['POSITIVE'] }}
+            </div>
+            <div class="sentiment-bar" style="background-color: red; width: {{ (sentiment_counts['NEGATIVE'] / results|length * 100)|round(2) }}%">
+                Negative: {{ sentiment_counts['NEGATIVE'] }}
+            </div>
+            <div class="sentiment-bar" style="background-color: gray; width: {{ (sentiment_counts['NEUTRAL'] / results|length * 100)|round(2) }}%">
+                Neutral: {{ sentiment_counts['NEUTRAL'] }}
+            </div>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Source</th>
+                    <th>Date</th>
+                    <th>Sentiment</th>
+                    <th>Confidence</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for article in results %}
+                <tr>
+                    <td><a href="{{ article.url }}" target="_blank">{{ article.title }}</a></td>
+                    <td>{{ article.source }}</td>
+                    <td>{{ article.date }}</td>
+                    <td class="sentiment-{{ article.sentiment.lower() }}">{{ article.sentiment }}</td>
+                    <td>{{ "%.2f"|format(article.confidence) }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+</body>
+</html>
